@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DrinkedIn — The Unprofessional Network for Professional People. Vent, gossip, and be human. Leave your corporate persona at the door.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="DrinkedIn — The Unprofessional Network">
+  <meta property="og:description" content="Where corporate employees go to be human. Vent about your boss, share your weekend disasters, and never hear about 'synergy' again.">
+  <meta property="og:image" content="/assets/banner-logo.jpg">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#f5a801">
+  <title>DrinkedIn — The Unprofessional Network</title>
+  <link rel="icon" type="image/png" href="/assets/logo-icon.png">
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/dialogs.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       Drinker Name Dialog (Entry Gate)
+       ============================================================ -->
+  <div id="drinkerDialogOverlay" class="drinker-dialog-overlay">
+    <div class="drinker-dialog">
+      <div class="drinker-dialog-content">
+        <div class="drinker-dialog-logo">
+          <img src="/assets/logo-icon.png" alt="DrinkedIn Logo">
+        </div>
+        <h1 class="drinker-dialog-title">Drinked<span>In</span></h1>
+        <p class="drinker-dialog-subtitle">The Unprofessional Network for Professional People</p>
+
+        <div class="drinker-input-group">
+          <label class="drinker-input-label" for="drinkerNameInput">What's your Drinker Name?</label>
+          <div class="drinker-input-wrapper">
+            <input
+              type="text"
+              id="drinkerNameInput"
+              class="drinker-input"
+              placeholder="e.g. Vipul@@143"
+              maxlength="16"
+              autocomplete="off"
+              spellcheck="false"
+            >
+          </div>
+        </div>
+
+        <div class="validation-rules" id="validationRules">
+          <div class="validation-rule" id="rule-length">
+            <span class="validation-rule-icon">✓</span>
+            <span>8 to 16 characters</span>
+          </div>
+          <div class="validation-rule" id="rule-alpha">
+            <span class="validation-rule-icon">✓</span>
+            <span>Contains letters (a-z, A-Z)</span>
+          </div>
+          <div class="validation-rule" id="rule-number">
+            <span class="validation-rule-icon">✓</span>
+            <span>Contains numbers (0-9)</span>
+          </div>
+          <div class="validation-rule" id="rule-special">
+            <span class="validation-rule-icon">✓</span>
+            <span>At least 2 special characters (!@#$%&*_)</span>
+          </div>
+        </div>
+
+        <div class="generated-id-preview" id="generatedIdPreview">
+          Your ID: <span id="previewId"></span>
+        </div>
+
+        <button id="drinkerEnterBtn" class="drinker-enter-btn" disabled>
+          🍺 Enter the Bar
+        </button>
+
+        <div class="drinker-dialog-footer">
+          No account needed. No data stored.<br>
+          Just vibes and <strong>zero professionalism</strong>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Top Navigation Bar
+       ============================================================ -->
+  <nav class="top-nav" id="topNav">
+    <div class="nav-container">
+      <!-- Logo -->
+      <a href="/" class="nav-logo" id="navLogo">
+        <img src="/assets/logo-icon.png" alt="DrinkedIn">
+        <span>DrinkedIn</span>
+      </a>
+
+      <!-- Search -->
+      <div class="nav-search">
+        <span class="nav-search-icon">🔍</span>
+        <input type="text" id="navSearchInput" placeholder="Search gossip, rants, drama...">
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="nav-links" id="navLinks">
+        <a href="#" class="nav-link active" data-page="home" id="navHome">
+          <span class="nav-link-icon">🏠</span>
+          <span class="nav-link-label">Home</span>
+        </a>
+        <a href="#" class="nav-link" data-page="mybar" id="navMyBar">
+          <span class="nav-link-icon">🍺</span>
+          <span class="nav-link-label">My Bar</span>
+        </a>
+        <a href="#" class="nav-link" data-page="antijobs" id="navAntiJobs">
+          <span class="nav-link-icon">🚫</span>
+          <span class="nav-link-label">Anti-Jobs</span>
+        </a>
+        <a href="#" class="nav-link" data-page="dms" id="navDMs">
+          <span class="nav-link-icon">💬</span>
+          <span class="nav-link-label">DMs</span>
+        </a>
+        <a href="#" class="nav-link" data-page="alerts" id="navAlerts">
+          <span class="nav-link-icon">🔔</span>
+          <span class="nav-link-label">Drama</span>
+        </a>
+      </div>
+
+      <!-- Profile -->
+      <div class="nav-profile" id="navProfile">
+        <div class="nav-avatar" id="navAvatar">?</div>
+        <span class="nav-profile-name" id="navProfileName">Drinker</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       Main Three-Column Layout
+       ============================================================ -->
+  <main class="main-layout" id="mainLayout">
+
+    <!-- Left Sidebar -->
+    <aside class="left-sidebar" id="leftSidebar">
+      <!-- Profile Card -->
+      <div class="profile-card" id="profileCard">
+        <div class="profile-banner"></div>
+        <div class="profile-avatar-wrapper">
+          <div class="profile-avatar" id="profileAvatar">?</div>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name" id="profileName">Anonymous Drinker</div>
+          <div class="profile-vibe" id="profileVibe">☕ Currently caffeinated</div>
+          <div class="profile-location">📍 Somewhere in Corporate Hell</div>
+        </div>
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="statRants">0</div>
+            <div class="profile-stat-label">Rants</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="statCheers">0</div>
+            <div class="profile-stat-label">Cheers</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rage Meter -->
+      <div class="rage-meter-card" id="rageMeterCard">
+        <div class="rage-meter-title">🔥 Rage Meter</div>
+        <div class="rage-bar-container">
+          <div class="rage-bar-fill" id="rageBarFill"></div>
+        </div>
+        <div class="rage-meter-label" id="rageMeterLabel">Post something to start raging!</div>
+        <div class="rage-meter-badge hidden" id="rageBadge">🏆 Badge Loading...</div>
+      </div>
+
+      <!-- Sidebar Nav -->
+      <nav class="sidebar-nav">
+        <div class="sidebar-nav-item active" data-category="all" id="sideNavAll">
+          <span>🌀</span> <span>All Posts</span>
+        </div>
+        <div class="sidebar-nav-item" data-category="morning_after" id="sideNavMorning">
+          <span>🌅</span> <span>Morning After</span>
+        </div>
+        <div class="sidebar-nav-item" data-category="office_rage" id="sideNavRage">
+          <span>😤</span> <span>Office Rage</span>
+        </div>
+        <div class="sidebar-nav-item" data-category="personal_overshare" id="sideNavPersonal">
+          <span>🫣</span> <span>Personal Overshare</span>
+        </div>
+        <div class="sidebar-nav-item" data-category="industry_gossip" id="sideNavGossip">
+          <span>🍵</span> <span>Industry Gossip</span>
+        </div>
+        <div class="sidebar-nav-item" data-category="water_cooler" id="sideNavWater">
+          <span>💧</span> <span>Water Cooler</span>
+        </div>
+      </nav>
+
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        DrinkedIn © 2026<br>
+        The Unprofessional Network<br>
+        <a href="#">About</a> · <a href="#">Privacy</a> · <a href="#">Terms</a>
+      </div>
+    </aside>
+
+    <!-- Center Feed -->
+    <section class="center-feed" id="centerFeed">
+      <!-- Post Composer Box -->
+      <div class="post-composer" id="postComposer">
+        <div class="composer-top">
+          <div class="composer-avatar" id="composerAvatar">?</div>
+          <button class="composer-input-btn" id="composerInputBtn">
+            What's your damage today?
+          </button>
+        </div>
+        <div class="composer-actions">
+          <button class="composer-action" data-category="morning_after" id="composerMorning">
+            <span class="composer-action-icon">🌅</span>
+            <span>Morning After</span>
+          </button>
+          <button class="composer-action" data-category="office_rage" id="composerRage">
+            <span class="composer-action-icon">😤</span>
+            <span>Rage Vent</span>
+          </button>
+          <button class="composer-action" data-category="personal_overshare" id="composerPersonal">
+            <span class="composer-action-icon">🫣</span>
+            <span>Overshare</span>
+          </button>
+          <button class="composer-action" data-category="water_cooler" id="composerWater">
+            <span class="composer-action-icon">💧</span>
+            <span>Random</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="category-tabs" id="categoryTabs">
+        <button class="category-tab active" data-category="all">🌀 All</button>
+        <button class="category-tab" data-category="morning_after">🌅 Morning After</button>
+        <button class="category-tab" data-category="office_rage">😤 Office Rage</button>
+        <button class="category-tab" data-category="personal_overshare">🫣 Overshare</button>
+        <button class="category-tab" data-category="industry_gossip">🍵 Gossip</button>
+        <button class="category-tab" data-category="water_cooler">💧 Random</button>
+      </div>
+
+      <!-- Feed Posts -->
+      <div class="feed-posts" id="feedPosts">
+        <!-- Posts will be rendered here by JS -->
+      </div>
+
+      <!-- Load More -->
+      <button class="load-more-btn hidden" id="loadMoreBtn">
+        Load more chaos ⬇️
+      </button>
+    </section>
+
+    <!-- Right Sidebar -->
+    <aside class="right-sidebar" id="rightSidebar">
+      <!-- Corporate Urge Button -->
+      <div class="corporate-urge-card" id="corporateUrgeCard">
+        <div class="corporate-urge-title">🚨 Feeling the Corporate Urge?</div>
+        <p class="corporate-urge-text">
+          Getting the itch to post about your "professional journey"? 
+          Take that energy somewhere it's welcome.
+        </p>
+        <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" class="corporate-urge-btn" id="corporateUrgeBtn">
+          Go to LinkedIn →
+        </a>
+      </div>
+
+      <!-- Trending Gossip -->
+      <div class="trending-card" id="trendingCard">
+        <div class="trending-header">🔥 Trending Gossip</div>
+        <div class="trending-item">
+          <div class="trending-item-title">Worst office coffee rankings</div>
+          <div class="trending-item-meta">47 rants · Trending</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-item-title">"My boss just..."</div>
+          <div class="trending-item-meta">128 contributions · 🔥 Hot</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-item-title">Monday morning survival guide</div>
+          <div class="trending-item-meta">63 tips · Rising</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-item-title">HR said we're a "family" again</div>
+          <div class="trending-item-meta">89 eye-rolls · 😬 Peak</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-item-title">C-suite fashion disasters 2026</div>
+          <div class="trending-item-meta">34 votes · New</div>
+        </div>
+      </div>
+
+      <!-- Rage Rooms -->
+      <div class="rage-rooms-card" id="rageRoomsCard">
+        <div class="rage-rooms-header">🚪 Rage Rooms</div>
+        <div class="rage-room-item">
+          <div class="rage-room-icon">🔥</div>
+          <div class="rage-room-info">
+            <div class="rage-room-name">Burnout Buddies</div>
+            <div class="rage-room-members">2.4k members</div>
+          </div>
+        </div>
+        <div class="rage-room-item">
+          <div class="rage-room-icon">☠️</div>
+          <div class="rage-room-info">
+            <div class="rage-room-name">Toxic Boss Survivors</div>
+            <div class="rage-room-members">5.1k members</div>
+          </div>
+        </div>
+        <div class="rage-room-item">
+          <div class="rage-room-icon">🏢</div>
+          <div class="rage-room-info">
+            <div class="rage-room-name">Big 4 Misery Club</div>
+            <div class="rage-room-members">3.8k members</div>
+          </div>
+        </div>
+        <div class="rage-room-item">
+          <div class="rage-room-icon">💔</div>
+          <div class="rage-room-info">
+            <div class="rage-room-name">Tech Layoff Therapy</div>
+            <div class="rage-room-members">7.2k members</div>
+          </div>
+        </div>
+        <div class="rage-room-item">
+          <div class="rage-room-icon">🍺</div>
+          <div class="rage-room-info">
+            <div class="rage-room-name">Friday Night Debrief</div>
+            <div class="rage-room-members">4.6k members</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drink Counter -->
+      <div class="drink-counter-card" id="drinkCounterCard">
+        <div class="drink-counter-title">🍻 Industry Drink Index</div>
+        <div class="drink-leagues">
+          <div class="drink-league">
+            <span class="drink-league-name">Finance</span>
+            <div class="drink-league-bar"><div class="drink-league-fill finance"></div></div>
+            <span class="drink-league-value">8.5</span>
+          </div>
+          <div class="drink-league">
+            <span class="drink-league-name">Consulting</span>
+            <div class="drink-league-bar"><div class="drink-league-fill consulting"></div></div>
+            <span class="drink-league-value">9.2</span>
+          </div>
+          <div class="drink-league">
+            <span class="drink-league-name">Tech</span>
+            <div class="drink-league-bar"><div class="drink-league-fill tech"></div></div>
+            <span class="drink-league-value">7.1</span>
+          </div>
+          <div class="drink-league">
+            <span class="drink-league-name">Health</span>
+            <div class="drink-league-bar"><div class="drink-league-fill healthcare"></div></div>
+            <span class="drink-league-value">4.3</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        DrinkedIn © 2026 · No Corporate BS<br>
+        <a href="#">Privacy</a> · <a href="#">Help</a> · <a href="#">Therapy Resources</a>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ============================================================
+       Post Composer Modal
+       ============================================================ -->
+  <div class="modal-overlay" id="composeModalOverlay">
+    <div class="modal" id="composeModal">
+      <div class="modal-header">
+        <h2 class="modal-title">Create a Post</h2>
+        <button class="modal-close" id="composeModalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- User Info & Anon Toggle -->
+        <div class="compose-user">
+          <div class="composer-avatar" id="composeModalAvatar">?</div>
+          <span class="compose-user-name" id="composeModalName">Drinker</span>
+          <label class="compose-anon-toggle" id="anonToggle">
+            <span>🕶️ Anonymous</span>
+            <div class="toggle-switch" id="anonSwitch"></div>
+          </label>
+        </div>
+
+        <!-- Company Type (visible in anon mode) -->
+        <div class="hidden" id="companyTypeWrapper" style="margin-bottom: 16px;">
+          <select class="company-type-select" id="companyTypeSelect">
+            <option value="">Select company type (optional)</option>
+            <option value="Tech Company">Tech Company</option>
+            <option value="Finance Firm">Finance Firm</option>
+            <option value="Consulting Agency">Consulting Agency</option>
+            <option value="Startup">Startup</option>
+            <option value="Big Corp">Big Corp</option>
+            <option value="Government">Government</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Media/Entertainment">Media/Entertainment</option>
+            <option value="Retail">Retail</option>
+            <option value="Mystery Employer">Mystery Employer</option>
+          </select>
+        </div>
+
+        <!-- Textarea -->
+        <textarea
+          class="compose-textarea"
+          id="composeTextarea"
+          placeholder="What's eating you alive? Spill it..."
+          maxlength="3000"
+        ></textarea>
+
+        <!-- Category Selection -->
+        <div class="compose-category-select" id="composeCategorySelect">
+          <button class="compose-category-option" data-category="morning_after">🌅 Morning After</button>
+          <button class="compose-category-option" data-category="office_rage">😤 Office Rage</button>
+          <button class="compose-category-option" data-category="personal_overshare">🫣 Overshare</button>
+          <button class="compose-category-option" data-category="industry_gossip">🍵 Gossip</button>
+          <button class="compose-category-option selected" data-category="water_cooler">💧 Random</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span class="char-counter" id="charCounter">0 / 3000</span>
+        <button class="btn-post" id="submitPostBtn" disabled>Post 🍺</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Corporate Firewall Warning Toast
+       ============================================================ -->
+  <div class="firewall-warning" id="firewallWarning">
+    <button class="firewall-warning-close" id="firewallWarningClose">✕</button>
+    <div class="firewall-warning-header">
+      <span>🚨</span> Corporate Firewall™ Activated
+    </div>
+    <div class="firewall-warning-message" id="firewallMessage">
+      This post has been blocked for containing corporate content.
+    </div>
+    <div class="firewall-warning-suggestion" id="firewallSuggestion">
+      Try rephrasing without the LinkedIn energy.
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ============================================================
+       JavaScript Modules
+       ============================================================ -->
+  <script src="/js/app.js"></script>
+  <script src="/js/drinkerDialog.js"></script>
+  <script src="/js/feed.js"></script>
+  <script src="/js/postComposer.js"></script>
+  <script src="/js/sidebar.js"></script>
+  <script src="/js/reactions.js"></script>
+
+</body>
+</html>

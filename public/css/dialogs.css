@@ -1,0 +1,348 @@
+/* ============================================================
+   DrinkedIn - Dialog & Modal Styles
+   Light Mode · Modern Rich Design
+   ============================================================ */
+
+/* ============================================================
+   Drinker Name Dialog (Full-screen welcome gate)
+   ============================================================ */
+.drinker-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(22, 100, 201, 0.92), rgba(10, 52, 112, 0.96));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  opacity: 1;
+  visibility: visible;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.drinker-dialog-overlay.closing {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.drinker-dialog {
+  background: #ffffff;
+  border: none;
+  border-radius: var(--radius-xl);
+  width: 90%;
+  max-width: 420px;
+  padding: var(--space-2xl) var(--space-xl);
+  text-align: center;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  transform: scale(1) translateY(0);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.drinker-dialog-overlay.closing .drinker-dialog {
+  transform: scale(0.9) translateY(20px);
+}
+
+/* Subtle animated gradient ring on the card */
+.drinker-dialog::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
+  background-size: 200% 100%;
+  animation: gradientMove 3s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.drinker-dialog-content {
+  position: relative;
+  z-index: 1;
+}
+
+.drinker-dialog-logo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-lg);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(22, 100, 201, 0.2);
+  animation: logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(2deg); }
+}
+
+.drinker-dialog-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.drinker-dialog-title {
+  font-weight: 800;
+  font-size: var(--font-size-2xl);
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+
+.drinker-dialog-title span {
+  color: var(--primary);
+}
+
+.drinker-dialog-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-xl);
+  font-style: italic;
+}
+
+.drinker-input-group {
+  margin-bottom: var(--space-md);
+}
+
+.drinker-input-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: left;
+  margin-bottom: 6px;
+}
+
+.drinker-input-wrapper {
+  position: relative;
+}
+
+.drinker-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-elevated);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  letter-spacing: 1px;
+  transition: all var(--transition-base);
+}
+
+.drinker-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-glow);
+  background: white;
+}
+
+.drinker-input.valid {
+  border-color: var(--success);
+  box-shadow: 0 0 0 4px rgba(13, 158, 94, 0.12);
+}
+
+.drinker-input.invalid {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 4px rgba(224, 62, 62, 0.12);
+}
+
+.drinker-input::placeholder {
+  color: var(--text-tertiary);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Validation Rules Display */
+.validation-rules {
+  margin-top: var(--space-md);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.validation-rule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  transition: color var(--transition-fast);
+}
+
+.validation-rule.met {
+  color: var(--success);
+}
+
+.validation-rule.unmet {
+  color: var(--text-tertiary);
+}
+
+.validation-rule-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  border: 1.5px solid currentColor;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.validation-rule.met .validation-rule-icon {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
+}
+
+/* Enter Button */
+.drinker-enter-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: var(--space-lg);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  font-weight: 800;
+  font-size: var(--font-size-md);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(22, 100, 201, 0.3);
+}
+
+.drinker-enter-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  transition: left 0.6s ease;
+}
+
+.drinker-enter-btn:hover::before {
+  left: 100%;
+}
+
+.drinker-enter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(22, 100, 201, 0.35);
+}
+
+.drinker-enter-btn:active {
+  transform: translateY(0);
+}
+
+.drinker-enter-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.drinker-enter-btn:disabled::before {
+  display: none;
+}
+
+.drinker-dialog-footer {
+  margin-top: var(--space-lg);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: 1.6;
+}
+
+.drinker-dialog-footer strong {
+  color: var(--primary);
+}
+
+/* Generated ID Preview */
+.generated-id-preview {
+  margin-top: var(--space-md);
+  padding: 10px 14px;
+  background: var(--primary-lighter);
+  border: 1px solid rgba(22, 100, 201, 0.15);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: all var(--transition-base);
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+}
+
+.generated-id-preview.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.generated-id-preview span {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ============================================================
+   Company Type Selector (for anonymous posts)
+   ============================================================ */
+.company-type-select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%235a6270' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 30px;
+}
+
+.company-type-select option {
+  background: white;
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   Responsive Dialog
+   ============================================================ */
+@media (max-width: 480px) {
+  .drinker-dialog {
+    padding: var(--space-xl) var(--space-md);
+    border-radius: var(--radius-lg);
+    max-width: 95%;
+  }
+
+  .drinker-dialog-logo {
+    width: 64px;
+    height: 64px;
+  }
+
+  .drinker-dialog-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .drinker-enter-btn {
+    padding: 12px;
+  }
+}
