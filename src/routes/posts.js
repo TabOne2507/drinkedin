@@ -141,7 +141,7 @@ router.post('/', postLimiter, corporateFirewall, async (req, res) => {
 
     res.status(201).json(response);
   } catch (error) {
-    console.error('Error creating post:', error);
+    console.error('Error creating post:', error.message || error);
     res.status(500).json({ error: 'Failed to create post. The server spilled its drink. 🍻' });
   }
 });
