@@ -2,19 +2,34 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const { createClient } = require('@supabase/supabase-js');
+const admin = require('firebase-admin');
 const { helmetConfig, apiLimiter, antiReverseEngineering } = require('./src/middleware/security');
-const { router: postsRouter, setSupabase } = require('./src/routes/posts');
+const { router: postsRouter, setDb } = require('./src/routes/posts');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Initialize Supabase
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
-setSupabase(supabase);
+// Initialize Firebase Admin
+let serviceAccount;
+if (process.env.NODE_ENV === 'production') {
+  serviceAccount = require('/etc/secrets/serviceAccountKey.json');
+} else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  const raw = process.env.FIREBASE_SERVICE_ACCOUNT.trim();
+  const json = raw.startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
+  serviceAccount = JSON.parse(json);
+  if (serviceAccount.private_key) {
+    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+  }
+} else {
+  serviceAccount = require('./serviceAccountKey.json');
+}
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+const db = admin.firestore();
+setDb(db);
 
 // ============================================================
 // Security Middleware
@@ -42,7 +57,6 @@ app.use(express.static(path.join(__dirname, 'public'), {
   etag: false,
   lastModified: false,
   setHeaders: (res, filePath) => {
-    // Cache assets aggressively, HTML never
     if (filePath.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     } else if (filePath.match(/\.(css|js)$/)) {
@@ -98,7 +112,7 @@ app.listen(PORT, () => {
   ║                                                   ║
   ║   Port: ${PORT}                                      ║
   ║   Mode: ${process.env.NODE_ENV || 'development'}                            ║
-  ║   Database: Supabase                              ║
+  ║   Database: Firestore                              ║
   ║                                                   ║
   ║   "Take that corporate energy to LinkedIn" 🚫     ║
   ║                                                   ║

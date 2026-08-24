@@ -1,53 +1,56 @@
 const express = require('express');
+const admin = require('firebase-admin');
 const router = express.Router();
 const { corporateFirewall, getClientValidationData } = require('../middleware/corporateFirewall');
 const { postLimiter } = require('../middleware/security');
 
-// Supabase client will be injected via middleware
-let supabase = null;
+let db = null;
 
-function setSupabase(supabaseInstance) {
-  supabase = supabaseInstance;
+function setDb(firestoreInstance) {
+  db = firestoreInstance;
 }
 
-/**
- * GET /api/posts
- * Fetch paginated feed posts, optionally filtered by category
- */
+const COLLECTION = 'posts';
+
 router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.perPage) || 20;
     const category = req.query.category || '';
 
-    // Calculate offset for Supabase range (0-indexed, inclusive)
-    const from = (page - 1) * perPage;
-    const to = from + perPage - 1;
+    let query = db.collection(COLLECTION).orderBy('created_at', 'desc');
 
-    // Build query
-    let query = supabase
-      .from('posts')
-      .select('*', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(from, to);
-
-    // Apply category filter
     if (category && category !== 'all') {
-      query = query.eq('category', category);
+      query = query.where('category', '==', category);
     }
 
-    const { data, error, count } = await query;
+    const countSnapshot = await query.get();
+    const totalItems = countSnapshot.size;
+    const totalPages = Math.ceil(totalItems / perPage);
 
-    if (error) throw error;
+    if (page > 1) {
+      const skipCount = (page - 1) * perPage;
+      let prevQuery = db.collection(COLLECTION).orderBy('created_at', 'desc');
+      if (category && category !== 'all') {
+        prevQuery = prevQuery.where('category', '==', category);
+      }
+      const prevPageSnapshot = await prevQuery.limit(skipCount).get();
 
-    const totalPages = Math.ceil((count || 0) / perPage);
+      if (prevPageSnapshot.docs.length > 0) {
+        const lastVisible = prevPageSnapshot.docs[prevPageSnapshot.docs.length - 1];
+        query = query.startAfter(lastVisible);
+      }
+    }
+
+    const snapshot = await query.limit(perPage).get();
+    const items = snapshot.docs.map(doc => formatPost({ id: doc.id, ...doc.data() }));
 
     res.json({
-      items: (data || []).map(formatPost),
-      page: page,
-      perPage: perPage,
-      totalItems: count || 0,
-      totalPages: totalPages,
+      items,
+      page,
+      perPage,
+      totalItems,
+      totalPages,
     });
   } catch (error) {
     console.error('Error fetching posts:', error);
@@ -55,15 +58,10 @@ router.get('/', async (req, res) => {
   }
 });
 
-/**
- * POST /api/posts
- * Create a new post (with Corporate Firewall™ check)
- */
 router.post('/', postLimiter, corporateFirewall, async (req, res) => {
   try {
     const { drinker_id, drinker_name, content, category, is_anonymous, company_type } = req.body;
 
-    // Validate required fields
     if (!drinker_id || !content || !category) {
       return res.status(400).json({
         error: 'Missing required fields. Even drunk posts need some effort.',
@@ -76,7 +74,6 @@ router.post('/', postLimiter, corporateFirewall, async (req, res) => {
       });
     }
 
-    // Validate category
     const validCategories = ['morning_after', 'office_rage', 'personal_overshare', 'industry_gossip', 'water_cooler'];
     if (!validCategories.includes(category)) {
       return res.status(400).json({
@@ -84,7 +81,6 @@ router.post('/', postLimiter, corporateFirewall, async (req, res) => {
       });
     }
 
-    // Validate content length
     if (content.length < 3) {
       return res.status(400).json({
         error: 'Post too short. Even a grunt needs at least 3 characters.',
@@ -98,10 +94,10 @@ router.post('/', postLimiter, corporateFirewall, async (req, res) => {
     }
 
     const postData = {
-      drinker_id: drinker_id,
+      drinker_id,
       drinker_name: is_anonymous ? 'Anonymous Drinker' : drinker_name,
-      content: content,
-      category: category,
+      content,
+      category,
       is_anonymous: !!is_anonymous,
       company_type: company_type || '',
       reactions: {
@@ -112,22 +108,17 @@ router.post('/', postLimiter, corporateFirewall, async (req, res) => {
         therapy: 0,
         hr_risk: 0,
       },
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    const { data, error } = await supabase
-      .from('posts')
-      .insert(postData)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const docRef = await db.collection(COLLECTION).add(postData);
+    const doc = await docRef.get();
 
     const response = {
       success: true,
-      post: formatPost(data),
+      post: formatPost({ id: doc.id, ...doc.data() }),
     };
 
-    // Attach corporate warning if any (Tier 2/3 soft warning)
     if (req.corporateWarning) {
       response.warning = req.corporateWarning;
     }
@@ -139,10 +130,6 @@ router.post('/', postLimiter, corporateFirewall, async (req, res) => {
   }
 });
 
-/**
- * POST /api/posts/:id/react
- * Add a reaction to a post
- */
 router.post('/:id/react', async (req, res) => {
   try {
     const { id } = req.params;
@@ -155,38 +142,25 @@ router.post('/:id/react', async (req, res) => {
       });
     }
 
-    // Fetch current post
-    const { data: post, error: fetchError } = await supabase
-      .from('posts')
-      .select('reactions')
-      .eq('id', id)
-      .single();
+    const postRef = db.collection(COLLECTION).doc(id);
+    const postDoc = await postRef.get();
 
-    if (fetchError) {
-      if (fetchError.code === 'PGRST116') {
-        return res.status(404).json({ error: 'Post not found. It probably sobered up and deleted itself.' });
-      }
-      throw fetchError;
+    if (!postDoc.exists) {
+      return res.status(404).json({ error: 'Post not found. It probably sobered up and deleted itself.' });
     }
 
-    let reactions = post.reactions || { cheers: 0, oof: 0, tea: 0, same: 0, therapy: 0, hr_risk: 0 };
+    await postRef.update({
+      [`reactions.${reaction}`]: admin.firestore.FieldValue.increment(1),
+    });
 
-    // Increment reaction
-    reactions[reaction] = (reactions[reaction] || 0) + 1;
-
-    // Update post
-    const { data: updated, error: updateError } = await supabase
-      .from('posts')
-      .update({ reactions })
-      .eq('id', id)
-      .select('reactions')
-      .single();
-
-    if (updateError) throw updateError;
+    const updatedDoc = await postRef.get();
+    const reactions = updatedDoc.data().reactions || {
+      cheers: 0, oof: 0, tea: 0, same: 0, therapy: 0, hr_risk: 0,
+    };
 
     res.json({
       success: true,
-      reactions: updated.reactions,
+      reactions,
     });
   } catch (error) {
     console.error('Error adding reaction:', error);
@@ -194,10 +168,6 @@ router.post('/:id/react', async (req, res) => {
   }
 });
 
-/**
- * DELETE /api/posts/:id
- * Delete a post (only by the original poster via drinker_id match)
- */
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -207,32 +177,20 @@ router.delete('/:id', async (req, res) => {
       return res.status(400).json({ error: 'Authentication required. Who even are you?' });
     }
 
-    // Verify ownership
-    const { data: post, error: fetchError } = await supabase
-      .from('posts')
-      .select('drinker_id')
-      .eq('id', id)
-      .single();
+    const postRef = db.collection(COLLECTION).doc(id);
+    const postDoc = await postRef.get();
 
-    if (fetchError) {
-      if (fetchError.code === 'PGRST116') {
-        return res.status(404).json({ error: 'Post not found. Already gone, like your motivation on Monday.' });
-      }
-      throw fetchError;
+    if (!postDoc.exists) {
+      return res.status(404).json({ error: 'Post not found. Already gone, like your motivation on Monday.' });
     }
 
-    if (post.drinker_id !== drinker_id) {
+    if (postDoc.data().drinker_id !== drinker_id) {
       return res.status(403).json({
         error: "That's not your post to delete. Nice try though. 🕵️",
       });
     }
 
-    const { error: deleteError } = await supabase
-      .from('posts')
-      .delete()
-      .eq('id', id);
-
-    if (deleteError) throw deleteError;
+    await postRef.delete();
 
     res.json({ success: true, message: 'Post deleted. Like it never happened. 🫣' });
   } catch (error) {
@@ -241,23 +199,20 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-/**
- * GET /api/corporate-firewall/rules
- * Returns client-side validation patterns for pre-checking
- */
 router.get('/corporate-firewall/rules', (req, res) => {
   res.json(getClientValidationData());
 });
 
-/**
- * Format a post record for API response
- */
 function formatPost(record) {
   let reactions = { cheers: 0, oof: 0, tea: 0, same: 0, therapy: 0, hr_risk: 0 };
   try {
     reactions = typeof record.reactions === 'string' ? JSON.parse(record.reactions) : (record.reactions || reactions);
   } catch {
-    // Keep defaults
+  }
+
+  let created = record.created_at;
+  if (created && typeof created.toDate === 'function') {
+    created = created.toDate().toISOString();
   }
 
   return {
@@ -268,9 +223,9 @@ function formatPost(record) {
     category: record.category,
     is_anonymous: record.is_anonymous,
     company_type: record.company_type || '',
-    reactions: reactions,
-    created: record.created_at,
+    reactions,
+    created,
   };
 }
 
-module.exports = { router, setSupabase };
+module.exports = { router, setDb };
