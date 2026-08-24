@@ -2,37 +2,19 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const admin = require('firebase-admin');
+const { createClient } = require('@supabase/supabase-js');
 const { helmetConfig, apiLimiter, antiReverseEngineering } = require('./src/middleware/security');
-const { router: postsRouter, setDb } = require('./src/routes/posts');
+const { router: postsRouter, setSupabase } = require('./src/routes/posts');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Initialize Firebase Admin
-// Local dev: reads from serviceAccountKey.json in project root
-// Production (Render.com): reads from FIREBASE_SERVICE_ACCOUNT env var
-let serviceAccount;
-if (process.env.NODE_ENV === 'production') {
-  // Render Secret Files: uploaded file available at /etc/secrets/
-  serviceAccount = require('/etc/secrets/serviceAccountKey.json');
-} else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-  const raw = process.env.FIREBASE_SERVICE_ACCOUNT.trim();
-  const json = raw.startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
-  serviceAccount = JSON.parse(json);
-  if (serviceAccount.private_key) {
-    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-  }
-} else {
-  serviceAccount = require('./serviceAccountKey.json');
-}
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
-const db = admin.firestore();
-setDb(db);
+// Initialize Supabase
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
+setSupabase(supabase);
 
 // ============================================================
 // Security Middleware
@@ -116,7 +98,7 @@ app.listen(PORT, () => {
   ║                                                   ║
   ║   Port: ${PORT}                                      ║
   ║   Mode: ${process.env.NODE_ENV || 'development'}                            ║
-  ║   Database: Firestore                              ║
+  ║   Database: Supabase                              ║
   ║                                                   ║
   ║   "Take that corporate energy to LinkedIn" 🚫     ║
   ║                                                   ║

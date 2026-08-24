@@ -1,17 +1,14 @@
 const express = require('express');
-const admin = require('firebase-admin');
 const router = express.Router();
 const { corporateFirewall, getClientValidationData } = require('../middleware/corporateFirewall');
 const { postLimiter } = require('../middleware/security');
 
-// Firestore instance will be injected via setter
-let db = null;
+// Supabase client will be injected via middleware
+let supabase = null;
 
-function setDb(firestoreInstance) {
-  db = firestoreInstance;
+function setSupabase(supabaseInstance) {
+  supabase = supabaseInstance;
 }
-
-const COLLECTION = 'posts';
 
 /**
  * GET /api/posts
@@ -23,42 +20,34 @@ router.get('/', async (req, res) => {
     const perPage = parseInt(req.query.perPage) || 20;
     const category = req.query.category || '';
 
-    let query = db.collection(COLLECTION).orderBy('created_at', 'desc');
+    // Calculate offset for Supabase range (0-indexed, inclusive)
+    const from = (page - 1) * perPage;
+    const to = from + perPage - 1;
+
+    // Build query
+    let query = supabase
+      .from('posts')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
 
     // Apply category filter
     if (category && category !== 'all') {
-      query = query.where('category', '==', category);
+      query = query.eq('category', category);
     }
 
-    // Get total count
-    const countSnapshot = await query.get();
-    const totalItems = countSnapshot.size;
-    const totalPages = Math.ceil(totalItems / perPage);
+    const { data, error, count } = await query;
 
-    // Apply pagination using cursor-based approach
-    if (page > 1) {
-      const skipCount = (page - 1) * perPage;
-      let prevQuery = db.collection(COLLECTION).orderBy('created_at', 'desc');
-      if (category && category !== 'all') {
-        prevQuery = prevQuery.where('category', '==', category);
-      }
-      const prevPageSnapshot = await prevQuery.limit(skipCount).get();
+    if (error) throw error;
 
-      if (prevPageSnapshot.docs.length > 0) {
-        const lastVisible = prevPageSnapshot.docs[prevPageSnapshot.docs.length - 1];
-        query = query.startAfter(lastVisible);
-      }
-    }
-
-    const snapshot = await query.limit(perPage).get();
-    const items = snapshot.docs.map(doc => formatPost({ id: doc.id, ...doc.data() }));
+    const totalPages = Math.ceil((count || 0) / perPage);
 
     res.json({
-      items,
-      page,
-      perPage,
-      totalItems,
-      totalPages,
+      items: (data || []).map(formatPost),
+      page: page,
+      perPage: perPage,
+      totalItems: count || 0,
+      totalPages: totalPages,
     });
   } catch (error) {
     console.error('Error fetching posts:', error);
@@ -109,10 +98,10 @@ router.post('/', postLimiter, corporateFirewall, async (req, res) => {
     }
 
     const postData = {
-      drinker_id,
+      drinker_id: drinker_id,
       drinker_name: is_anonymous ? 'Anonymous Drinker' : drinker_name,
-      content,
-      category,
+      content: content,
+      category: category,
       is_anonymous: !!is_anonymous,
       company_type: company_type || '',
       reactions: {
@@ -123,15 +112,19 @@ router.post('/', postLimiter, corporateFirewall, async (req, res) => {
         therapy: 0,
         hr_risk: 0,
       },
-      created_at: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    const docRef = await db.collection(COLLECTION).add(postData);
-    const doc = await docRef.get();
+    const { data, error } = await supabase
+      .from('posts')
+      .insert(postData)
+      .select()
+      .single();
+
+    if (error) throw error;
 
     const response = {
       success: true,
-      post: formatPost({ id: doc.id, ...doc.data() }),
+      post: formatPost(data),
     };
 
     // Attach corporate warning if any (Tier 2/3 soft warning)
@@ -141,14 +134,14 @@ router.post('/', postLimiter, corporateFirewall, async (req, res) => {
 
     res.status(201).json(response);
   } catch (error) {
-    console.error('Error creating post:', error.message || error);
+    console.error('Error creating post:', error);
     res.status(500).json({ error: 'Failed to create post. The server spilled its drink. 🍻' });
   }
 });
 
 /**
  * POST /api/posts/:id/react
- * Add a reaction to a post (using atomic increment)
+ * Add a reaction to a post
  */
 router.post('/:id/react', async (req, res) => {
   try {
@@ -162,27 +155,38 @@ router.post('/:id/react', async (req, res) => {
       });
     }
 
-    const postRef = db.collection(COLLECTION).doc(id);
-    const postDoc = await postRef.get();
+    // Fetch current post
+    const { data: post, error: fetchError } = await supabase
+      .from('posts')
+      .select('reactions')
+      .eq('id', id)
+      .single();
 
-    if (!postDoc.exists) {
-      return res.status(404).json({ error: 'Post not found. It probably sobered up and deleted itself.' });
+    if (fetchError) {
+      if (fetchError.code === 'PGRST116') {
+        return res.status(404).json({ error: 'Post not found. It probably sobered up and deleted itself.' });
+      }
+      throw fetchError;
     }
 
-    // Atomic increment — no race condition
-    await postRef.update({
-      [`reactions.${reaction}`]: admin.firestore.FieldValue.increment(1),
-    });
+    let reactions = post.reactions || { cheers: 0, oof: 0, tea: 0, same: 0, therapy: 0, hr_risk: 0 };
 
-    // Fetch updated document to return new reaction counts
-    const updatedDoc = await postRef.get();
-    const reactions = updatedDoc.data().reactions || {
-      cheers: 0, oof: 0, tea: 0, same: 0, therapy: 0, hr_risk: 0,
-    };
+    // Increment reaction
+    reactions[reaction] = (reactions[reaction] || 0) + 1;
+
+    // Update post
+    const { data: updated, error: updateError } = await supabase
+      .from('posts')
+      .update({ reactions })
+      .eq('id', id)
+      .select('reactions')
+      .single();
+
+    if (updateError) throw updateError;
 
     res.json({
       success: true,
-      reactions,
+      reactions: updated.reactions,
     });
   } catch (error) {
     console.error('Error adding reaction:', error);
@@ -203,20 +207,32 @@ router.delete('/:id', async (req, res) => {
       return res.status(400).json({ error: 'Authentication required. Who even are you?' });
     }
 
-    const postRef = db.collection(COLLECTION).doc(id);
-    const postDoc = await postRef.get();
+    // Verify ownership
+    const { data: post, error: fetchError } = await supabase
+      .from('posts')
+      .select('drinker_id')
+      .eq('id', id)
+      .single();
 
-    if (!postDoc.exists) {
-      return res.status(404).json({ error: 'Post not found. Already gone, like your motivation on Monday.' });
+    if (fetchError) {
+      if (fetchError.code === 'PGRST116') {
+        return res.status(404).json({ error: 'Post not found. Already gone, like your motivation on Monday.' });
+      }
+      throw fetchError;
     }
 
-    if (postDoc.data().drinker_id !== drinker_id) {
+    if (post.drinker_id !== drinker_id) {
       return res.status(403).json({
         error: "That's not your post to delete. Nice try though. 🕵️",
       });
     }
 
-    await postRef.delete();
+    const { error: deleteError } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) throw deleteError;
 
     res.json({ success: true, message: 'Post deleted. Like it never happened. 🫣' });
   } catch (error) {
@@ -244,12 +260,6 @@ function formatPost(record) {
     // Keep defaults
   }
 
-  // Handle Firestore Timestamp objects
-  let created = record.created_at;
-  if (created && typeof created.toDate === 'function') {
-    created = created.toDate().toISOString();
-  }
-
   return {
     id: record.id,
     drinker_id: record.drinker_id,
@@ -258,9 +268,9 @@ function formatPost(record) {
     category: record.category,
     is_anonymous: record.is_anonymous,
     company_type: record.company_type || '',
-    reactions,
-    created,
+    reactions: reactions,
+    created: record.created_at,
   };
 }
 
-module.exports = { router, setDb };
+module.exports = { router, setSupabase };
