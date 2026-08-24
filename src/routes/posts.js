@@ -24,28 +24,25 @@ router.get('/', async (req, res) => {
     const category = req.query.category || '';
 
     let query = db.collection(COLLECTION).orderBy('created_at', 'desc');
-    let countQuery = db.collection(COLLECTION);
 
     // Apply category filter
     if (category && category !== 'all') {
       query = query.where('category', '==', category);
-      countQuery = countQuery.where('category', '==', category);
     }
 
-    // Get total count (Firestore has no count aggregation, so we fetch IDs)
-    const countSnapshot = await countQuery.select('id').get();
+    // Get total count
+    const countSnapshot = await query.get();
     const totalItems = countSnapshot.size;
     const totalPages = Math.ceil(totalItems / perPage);
 
     // Apply pagination using cursor-based approach
     if (page > 1) {
-      const prevPageSnapshot = await db
-        .collection(COLLECTION)
-        .orderBy('created_at', 'desc')
-        ...(category && category !== 'all' ? [admin.firestore.FieldPath.documentId()] : [])
-        .limit((page - 1) * perPage)
-        .select('id')
-        .get();
+      const skipCount = (page - 1) * perPage;
+      let prevQuery = db.collection(COLLECTION).orderBy('created_at', 'desc');
+      if (category && category !== 'all') {
+        prevQuery = prevQuery.where('category', '==', category);
+      }
+      const prevPageSnapshot = await prevQuery.limit(skipCount).get();
 
       if (prevPageSnapshot.docs.length > 0) {
         const lastVisible = prevPageSnapshot.docs[prevPageSnapshot.docs.length - 1];
@@ -53,8 +50,7 @@ router.get('/', async (req, res) => {
       }
     }
 
-    query = query.limit(perPage);
-    const snapshot = await query.get();
+    const snapshot = await query.limit(perPage).get();
     const items = snapshot.docs.map(doc => formatPost({ id: doc.id, ...doc.data() }));
 
     res.json({
