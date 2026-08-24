@@ -7,9 +7,7 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_ANON_KEY
+      - key: FIREBASE_SERVICE_ACCOUNT
         sync: false
       - key: PORT
         value: 10000
