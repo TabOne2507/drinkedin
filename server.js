@@ -14,11 +14,10 @@ const PORT = process.env.PORT || 3000;
 // Production (Render.com): reads from FIREBASE_SERVICE_ACCOUNT env var
 let serviceAccount;
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-  // Fix newlines in private key that get mangled by env var pasting
-  if (serviceAccount.private_key) {
-    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-  }
+  // Support both raw JSON and base64-encoded JSON
+  const raw = process.env.FIREBASE_SERVICE_ACCOUNT.trim();
+  const json = raw.startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
+  serviceAccount = JSON.parse(json);
 } else {
   serviceAccount = require('./serviceAccountKey.json');
 }
