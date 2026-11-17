@@ -19,11 +19,29 @@ router.get('/', async (req, res) => {
     const perPage = parseInt(req.query.perPage) || 20;
     const category = req.query.category || '';
 
-    let query = db.collection(COLLECTION).orderBy('created_at', 'desc');
-
+    // Firestore needs a composite index for category + created_at.
+    // Filter by category only, then sort and paginate in memory so the
+    // feed still works without that extra index.
     if (category && category !== 'all') {
-      query = query.where('category', '==', category);
+      const categorySnapshot = await db.collection(COLLECTION).where('category', '==', category).get();
+      const matchingPosts = categorySnapshot.docs
+        .map((doc) => formatPost({ id: doc.id, ...doc.data() }))
+        .sort((a, b) => new Date(b.created || 0).getTime() - new Date(a.created || 0).getTime());
+
+      const totalItems = matchingPosts.length;
+      const totalPages = Math.ceil(totalItems / perPage);
+      const start = (page - 1) * perPage;
+
+      return res.json({
+        items: matchingPosts.slice(start, start + perPage),
+        page,
+        perPage,
+        totalItems,
+        totalPages,
+      });
     }
+
+    let query = db.collection(COLLECTION).orderBy('created_at', 'desc');
 
     const countSnapshot = await query.get();
     const totalItems = countSnapshot.size;
