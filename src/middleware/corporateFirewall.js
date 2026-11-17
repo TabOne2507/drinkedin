@@ -69,21 +69,21 @@ const CORPORATE_BUZZWORDS = [
 
 // Snarky rejection messages
 const TIER1_MESSAGES = [
-  "🚫 Whoa there, recruiter! This looks like a job posting. Take that toxicity to LinkedIn where it belongs.",
+  "🚫 Whoa there, recruiter! This looks like a job posting. Take that toxicity to a job board where it belongs.",
   "🚫 We detected corporate recruitment energy. DrinkedIn is a job-free zone. Go away, HR.",
   "🚫 Nice try, but we don't do 'career opportunities' here. Try posting about your hangover instead.",
-  "🚫 REJECTED. This smells like a LinkedIn post. Were you dropped on your head by a talent acquisition team?",
+  "🚫 REJECTED. This smells like a corporate post. Were you dropped on your head by a talent acquisition team?",
 ];
 
 const TIER2_MESSAGES = [
-  "⚠️ Hmm, this sounds suspiciously professional. Are you sure you're not lost? LinkedIn is that way 👉",
-  "⚠️ 'Excited to announce'? Sounds like LinkedIn brain rot. Rephrase it like a human, not a corporate bot.",
+  "⚠️ Hmm, this sounds suspiciously professional. Are you sure you're not lost? The corporate world is that way 👉",
+  "⚠️ 'Excited to announce'? Sounds like corporate brain rot. Rephrase it like a human, not a corporate bot.",
   "⚠️ We're picking up strong corporate vibes. Maybe tone down the buzzwords and add more chaos?",
   "⚠️ This post has concerning levels of professionalism. Consider adding a rant about your boss instead.",
 ];
 
 const TIER3_MESSAGES = [
-  "🤔 Are you okay? This sounds dangerously close to a LinkedIn post. Corporate jargon density is HIGH.",
+  "🤔 Are you okay? This sounds dangerously close to a corporate post. Corporate jargon density is HIGH.",
   "🤔 Buzzword alert! Your post is 40%+ corporate speak. Maybe replace 'synergy' with 'beer'?",
   "🤔 Feeling the corporate urge? Take a deep breath and remember: nobody here cares about your KPIs.",
 ];

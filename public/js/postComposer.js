@@ -209,7 +209,7 @@ const PostComposer = (() => {
         return {
           blocked: true,
           keyword: keyword,
-          message: `Detected corporate content: "${keyword}". This is DrinkedIn, not LinkedIn!`,
+          message: `Detected corporate content: "${keyword}". This is DrinkedIn, not a job board!`,
         };
       }
     }
@@ -230,7 +230,7 @@ const PostComposer = (() => {
     // Client-side pre-check
     const preCheck = corporatePreCheck(content);
     if (preCheck.blocked) {
-      App.showFirewallWarning(preCheck.message, 'Rephrase it like you\'re texting your friends, not updating your LinkedIn.');
+      App.showFirewallWarning(preCheck.message, 'Rephrase it like you\'re texting your friends, not updating your professional profile.');
       return;
     }
 

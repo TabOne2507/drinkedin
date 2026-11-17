@@ -944,57 +944,6 @@ textarea {
   gap: var(--space-md);
 }
 
-/* Corporate Urge Button */
-.corporate-urge-card {
-  background: linear-gradient(135deg, var(--primary-lighter), #fff);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius-lg);
-  padding: var(--space-md);
-  text-align: center;
-  transition: all var(--transition-base);
-  box-shadow: var(--shadow-sm);
-}
-
-.corporate-urge-card:hover {
-  box-shadow: var(--shadow-primary);
-  transform: translateY(-2px);
-}
-
-.corporate-urge-title {
-  font-size: var(--font-size-sm);
-  color: var(--primary);
-  font-weight: 700;
-  margin-bottom: var(--space-sm);
-}
-
-.corporate-urge-text {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  margin-bottom: var(--space-sm);
-  line-height: 1.5;
-}
-
-.corporate-urge-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: var(--text-inverse);
-  font-weight: 700;
-  font-size: var(--font-size-sm);
-  border-radius: var(--radius-full);
-  transition: all var(--transition-fast);
-  text-decoration: none;
-  box-shadow: var(--shadow-primary);
-}
-
-.corporate-urge-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 24px rgba(22, 100, 201, 0.25);
-  color: var(--text-inverse);
-}
-
 /* Trending Gossip */
 .trending-card {
   background: var(--bg-card);

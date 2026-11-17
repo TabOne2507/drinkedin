@@ -114,7 +114,7 @@ app.listen(PORT, () => {
   ║   Mode: ${process.env.NODE_ENV || 'development'}                            ║
   ║   Database: Firestore                              ║
   ║                                                   ║
-  ║   "Take that corporate energy to LinkedIn" 🚫     ║
+  ║   "Take that corporate energy elsewhere" 🚫    ║
   ║                                                   ║
   ╚═══════════════════════════════════════════════════╝
   `);

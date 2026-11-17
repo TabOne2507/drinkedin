@@ -2,7 +2,7 @@
 
 **"The Unprofessional Network for Professional People"**
 
-Tired of seeing your college roommate boast about their "synergistic paradigm shifts" on LinkedIn? Welcome to **DrinkedIn** — the only social network where being an absolute mess is a sign of leadership. Save your "thrilled to announce" posts for the corporate overminds. Here, we embrace the Morning After Confessions and unhinged Office Rage.
+Tired of seeing your college roommate boast about their "synergistic paradigm shifts" on your professional feed? Welcome to **DrinkedIn** — the only social network where being an absolute mess is a sign of leadership. Save your "thrilled to announce" posts for the corporate overminds. Here, we embrace the Morning After Confessions and unhinged Office Rage.
 
 ## ✨ Features
 - **Corporate Firewall™ Checklist:** Built-in safeguards prevent corporate buzzwords ("now hiring," "circle back," "synergy"). You can't be a professional here.
