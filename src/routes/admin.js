@@ -136,7 +136,8 @@ function sortByCreatedDesc(a, b) {
 // Brute-force protection for the login form.
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 5,
+  limit: 10,
+  skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many login attempts. Try again in 15 minutes.' },
@@ -172,7 +173,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Username and password are required.' });
   }
 
-  if (!safeEqual(username, credentials.username) | !safeEqual(password, credentials.password)) {
+  if (!safeEqual(username.trim().toLowerCase(), credentials.username.trim().toLowerCase()) | !safeEqual(password, credentials.password)) {
     return res.status(401).json({ error: 'Invalid username or password.' });
   }
 

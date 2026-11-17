@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0b0f14">
   <title>Admin — DrinkedIn</title>
   <link rel="icon" type="image/png" href="/assets/logo-icon.png">
-  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/admin.css?v=20261118">
 </head>
 <body>
 
@@ -19,21 +19,22 @@
     <form class="login-card" id="loginForm" autocomplete="off">
       <div class="login-logo">🍺</div>
       <h1 class="login-title">DrinkedIn <span>Admin</span></h1>
-      <p class="login-subtitle">Restricted area. Credentials are stored server-side.</p>
 
       <label class="login-field">
         <span>Username</span>
-        <input type="text" id="loginUsername" name="username" autocomplete="username" required>
+        <input type="text" id="loginUsername" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
       </label>
 
       <label class="login-field">
         <span>Password</span>
-        <input type="password" id="loginPassword" name="password" autocomplete="current-password" required>
+        <div class="password-wrap">
+          <input type="password" id="loginPassword" name="password" autocomplete="current-password" required>
+          <button type="button" class="password-toggle" id="passwordToggle" aria-label="Show password" aria-pressed="false">Show</button>
+        </div>
       </label>
 
       <button type="submit" class="btn btn-primary login-submit" id="loginBtn">Sign In</button>
       <div class="login-error hidden" id="loginError" role="alert"></div>
-      <div class="login-hint">Set <code>ADMIN_USERNAME</code> and <code>ADMIN_PASSWORD</code> in the Render environment.</div>
     </form>
   </div>
 
@@ -229,6 +230,6 @@
 
   <div class="toast hidden" id="toast" role="status"></div>
 
-  <script src="/js/admin.js"></script>
+  <script src="/js/admin.js?v=20261118"></script>
 </body>
 </html>

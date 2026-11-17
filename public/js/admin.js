@@ -125,6 +125,20 @@ const Admin = (() => {
     }
   }
 
+  function setPasswordVisible(visible) {
+    const input = $('loginPassword');
+    const toggle = $('passwordToggle');
+    if (!input || !toggle) return;
+    input.type = visible ? 'text' : 'password';
+    toggle.textContent = visible ? 'Hide' : 'Show';
+    toggle.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
+    toggle.setAttribute('aria-pressed', visible ? 'true' : 'false');
+  }
+
+  function togglePassword() {
+    setPasswordVisible($('loginPassword').type === 'password');
+  }
+
   async function api(path, options = {}) {
     const response = await fetch(path, {
       credentials: 'same-origin',
@@ -157,6 +171,7 @@ const Admin = (() => {
     state.authed = false;
     $('adminShell').classList.add('hidden');
     $('loginScreen').classList.remove('hidden');
+    setPasswordVisible(false);
     setLoginError('');
   }
 
@@ -165,6 +180,7 @@ const Admin = (() => {
     state.username = username || '';
     $('loginScreen').classList.add('hidden');
     $('adminShell').classList.remove('hidden');
+    setPasswordVisible(false);
     loadAll();
   }
 
@@ -185,6 +201,7 @@ const Admin = (() => {
 
   function bindEvents() {
     $('loginForm').addEventListener('submit', onLogin);
+    $('passwordToggle').addEventListener('click', togglePassword);
     $('logoutBtn').addEventListener('click', onLogout);
     $('refreshBtn').addEventListener('click', () => loadAll());
     $('syncBtn').addEventListener('click', onRebuild);
@@ -259,10 +276,15 @@ const Admin = (() => {
         body: JSON.stringify({ username, password }),
       });
       $('loginPassword').value = '';
+      setPasswordVisible(false);
       enterDashboard(data.username);
       toast(`Welcome back, ${data.username}.`, 'success');
     } catch (error) {
       setLoginError(error.message || 'Login failed.');
+      if (error.unauthorized) {
+        $('loginPassword').focus();
+        $('loginPassword').select();
+      }
     } finally {
       button.disabled = false;
       button.textContent = 'Sign In';
@@ -280,6 +302,8 @@ const Admin = (() => {
     state.users = [];
     state.activity = [];
     state.posts = [];
+    setPasswordVisible(false);
+    $('loginPassword').value = '';
     $('loginScreen').classList.remove('hidden');
     $('adminShell').classList.add('hidden');
     toast('Signed out.', 'success');
