@@ -103,13 +103,10 @@ app.get('/admin', (req, res) => {
 });
 
 // ============================================================
-// SPA Fallback - serve index.html for all non-API routes
+// Page Routes
 // ============================================================
-app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api/')) {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-  }
-});
+// Only / (served by express.static) and /admin serve HTML pages.
+// Unknown routes fall through to Express's default 404 response.
 
 // ============================================================
 // Error Handling
