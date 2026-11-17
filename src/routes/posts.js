@@ -3,6 +3,7 @@ const admin = require('firebase-admin');
 const router = express.Router();
 const { corporateFirewall, getClientValidationData } = require('../middleware/corporateFirewall');
 const { postLimiter } = require('../middleware/security');
+const tracking = require('../services/tracking');
 
 let db = null;
 
@@ -113,10 +114,19 @@ router.post('/', postLimiter, corporateFirewall, async (req, res) => {
 
     const docRef = await db.collection(COLLECTION).add(postData);
     const doc = await docRef.get();
+    const formattedPost = formatPost({ id: doc.id, ...doc.data() });
+
+    await tracking.recordPost(req, {
+      post: formattedPost,
+      authorId: drinker_id,
+      authorName: drinker_name,
+      isAnonymous: !!is_anonymous,
+      companyType: company_type || '',
+    });
 
     const response = {
       success: true,
-      post: formatPost({ id: doc.id, ...doc.data() }),
+      post: formattedPost,
     };
 
     if (req.corporateWarning) {
@@ -133,7 +143,7 @@ router.post('/', postLimiter, corporateFirewall, async (req, res) => {
 router.post('/:id/react', async (req, res) => {
   try {
     const { id } = req.params;
-    const { reaction } = req.body;
+    const { reaction, drinker_id, drinker_name } = req.body;
 
     const validReactions = ['cheers', 'oof', 'tea', 'same', 'therapy', 'hr_risk'];
     if (!validReactions.includes(reaction)) {
@@ -157,6 +167,13 @@ router.post('/:id/react', async (req, res) => {
     const reactions = updatedDoc.data().reactions || {
       cheers: 0, oof: 0, tea: 0, same: 0, therapy: 0, hr_risk: 0,
     };
+
+    await tracking.recordReaction(req, {
+      post: { id, ...postDoc.data() },
+      reaction,
+      drinkerId: drinker_id,
+      drinkerName: drinker_name,
+    });
 
     res.json({
       success: true,
@@ -191,6 +208,8 @@ router.delete('/:id', async (req, res) => {
     }
 
     await postRef.delete();
+
+    await tracking.recordDelete(req, { ...postDoc.data(), id });
 
     res.json({ success: true, message: 'Post deleted. Like it never happened. 🫣' });
   } catch (error) {

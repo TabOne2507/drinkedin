@@ -40,22 +40,19 @@ const helmetConfig = helmet({
 // Rate limiter - 100 requests per 15 minutes per IP
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  limit: 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
     error: 'Too many requests from this IP. Maybe go touch grass? 🌿',
     retryAfter: '15 minutes',
   },
-  keyGenerator: (req) => {
-    return req.headers['x-forwarded-for'] || req.ip;
-  },
 });
 
 // Stricter rate limit for post creation
 const postLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
-  max: 10,
+  limit: 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: {

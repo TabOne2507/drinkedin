@@ -85,23 +85,25 @@ const Reactions = (() => {
       }
     }
 
-    // Send to API
+    // Send to API with drinker identity so the admin dashboard can track activity
+    const state = App.getState();
     const result = await App.apiRequest(`/api/posts/${postId}/react`, {
       method: 'POST',
-      body: JSON.stringify({ reaction }),
+      body: JSON.stringify({
+        reaction,
+        drinker_id: state.drinkerId,
+        drinker_name: state.drinkerName,
+      }),
     });
 
     if (result.error) {
-      // Revert on failure (but don't bother the user for sample posts)
-      if (!postId.startsWith('sample-') && !postId.startsWith('local-')) {
-        // Revert optimistic update
-        if (countEl) {
-          const current = parseInt(countEl.textContent) || 0;
-          countEl.textContent = Math.max(0, current - 1) || '';
-        }
-        btn.classList.remove('reacted');
-        reactedPosts.get(postId)?.delete(reaction);
+      // Revert optimistic update
+      if (countEl) {
+        const current = parseInt(countEl.textContent) || 0;
+        countEl.textContent = Math.max(0, current - 1) || '';
       }
+      btn.classList.remove('reacted');
+      reactedPosts.get(postId)?.delete(reaction);
     } else if (result.data.reactions) {
       // Update all reaction counts from server response
       updateReactionCounts(postId, result.data.reactions);

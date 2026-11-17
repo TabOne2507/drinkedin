@@ -1,6 +1,6 @@
 /**
  * DrinkedIn - Sidebar Module
- * Manages left sidebar (profile, rage meter) and right sidebar (trending, rage rooms)
+ * Manages left sidebar (profile, rage meter) and right sidebar (live bar stats)
  */
 
 const Sidebar = (() => {
@@ -33,9 +33,35 @@ const Sidebar = (() => {
     { min: 15, max: Infinity, label: 'LEGENDARY RANTER! Touch grass!', badge: '👑 Rage Royalty' },
   ];
 
+  // Live stats refresh timer
+  let statsTimer = null;
+
   function init() {
     setRandomVibe();
     updateRageMeter(0);
+    loadLiveStats();
+    if (!statsTimer) {
+      statsTimer = setInterval(loadLiveStats, 60000);
+    }
+  }
+
+  /**
+   * Load real aggregate stats from the server
+   */
+  function loadLiveStats() {
+    App.apiRequest('/api/stats').then((result) => {
+      if (result.error) return;
+      const stats = result.data || {};
+      setStatValue('liveStatUsers', stats.users);
+      setStatValue('liveStatPosts', stats.posts);
+      setStatValue('liveStatToday', stats.postsToday);
+      setStatValue('liveStatReactions', stats.reactions);
+    });
+  }
+
+  function setStatValue(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = Number(value || 0).toLocaleString();
   }
 
   /**

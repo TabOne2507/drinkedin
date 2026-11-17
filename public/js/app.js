@@ -29,6 +29,7 @@ const App = (() => {
       state.drinkerName = savedName;
       state.isAuthenticated = true;
       onAuthenticated();
+      trackSession(true);
     } else {
       // Show drinker dialog
       DrinkerDialog.show();
@@ -58,6 +59,24 @@ const App = (() => {
     sessionStorage.setItem('drinkedin_id', drinkerId);
     sessionStorage.setItem('drinkedin_name', drinkerName);
     onAuthenticated();
+    trackSession(false);
+  }
+
+  /**
+   * Report the session to the backend for activity tracking.
+   * Failure is silent: tracking must never block the app.
+   */
+  function trackSession(resumed) {
+    if (!state.drinkerId) return;
+
+    apiRequest('/api/activity/session', {
+      method: 'POST',
+      body: JSON.stringify({
+        drinker_id: state.drinkerId,
+        drinker_name: state.drinkerName,
+        resumed: !!resumed,
+      }),
+    });
   }
 
   /**

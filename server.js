@@ -5,9 +5,16 @@ const cors = require('cors');
 const admin = require('firebase-admin');
 const { helmetConfig, apiLimiter, antiReverseEngineering } = require('./src/middleware/security');
 const { router: postsRouter, setDb } = require('./src/routes/posts');
+const { router: activityRouter } = require('./src/routes/activity');
+const { router: statsRouter, setDb: setStatsDb } = require('./src/routes/stats');
+const { router: adminRouter, setDb: setAdminDb } = require('./src/routes/admin');
+const tracking = require('./src/services/tracking');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Render sits behind a proxy; trust the first hop for real client IPs.
+app.set('trust proxy', 1);
 
 // Initialize Firebase Admin
 let serviceAccount;
@@ -30,6 +37,10 @@ admin.initializeApp({
 
 const db = admin.firestore();
 setDb(db);
+setStatsDb(db);
+setAdminDb(db);
+tracking.setDb(db);
+tracking.initialize();
 
 // ============================================================
 // Security Middleware
@@ -71,6 +82,9 @@ app.use(express.static(path.join(__dirname, 'public'), {
 // API Routes
 // ============================================================
 app.use('/api/posts', apiLimiter, postsRouter);
+app.use('/api/activity', apiLimiter, activityRouter);
+app.use('/api/stats', apiLimiter, statsRouter);
+app.use('/api/admin', adminRouter);
 
 // Health check endpoint (for Render.com)
 app.get('/api/health', (req, res) => {
@@ -79,6 +93,13 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
   });
+});
+
+// ============================================================
+// Admin Dashboard
+// ============================================================
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 // ============================================================

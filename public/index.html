@@ -72,7 +72,7 @@
         </button>
 
         <div class="drinker-dialog-footer">
-          No account needed. No data stored.<br>
+          No account needed. Posts and basic activity are stored.<br>
           Just vibes and <strong>zero professionalism</strong>.
         </div>
       </div>
@@ -251,96 +251,26 @@
 
     <!-- Right Sidebar -->
     <aside class="right-sidebar" id="rightSidebar">
-      <!-- Trending Gossip -->
-      <div class="trending-card" id="trendingCard">
-        <div class="trending-header">🔥 Trending Gossip</div>
-        <div class="trending-item">
-          <div class="trending-item-title">Worst office coffee rankings</div>
-          <div class="trending-item-meta">47 rants · Trending</div>
+      <!-- Live Bar Stats (real data from the API) -->
+      <div class="live-stats-card" id="liveStatsCard">
+        <div class="live-stats-header">📊 Live Bar Stats</div>
+        <div class="live-stat-row">
+          <span class="live-stat-label">🍺 Drinkers</span>
+          <span class="live-stat-value" id="liveStatUsers">—</span>
         </div>
-        <div class="trending-item">
-          <div class="trending-item-title">"My boss just..."</div>
-          <div class="trending-item-meta">128 contributions · 🔥 Hot</div>
+        <div class="live-stat-row">
+          <span class="live-stat-label">😤 Rants</span>
+          <span class="live-stat-value" id="liveStatPosts">—</span>
         </div>
-        <div class="trending-item">
-          <div class="trending-item-title">Monday morning survival guide</div>
-          <div class="trending-item-meta">63 tips · Rising</div>
+        <div class="live-stat-row">
+          <span class="live-stat-label">🔥 Today</span>
+          <span class="live-stat-value" id="liveStatToday">—</span>
         </div>
-        <div class="trending-item">
-          <div class="trending-item-title">HR said we're a "family" again</div>
-          <div class="trending-item-meta">89 eye-rolls · 😬 Peak</div>
+        <div class="live-stat-row">
+          <span class="live-stat-label">🍻 Reactions</span>
+          <span class="live-stat-value" id="liveStatReactions">—</span>
         </div>
-        <div class="trending-item">
-          <div class="trending-item-title">C-suite fashion disasters 2026</div>
-          <div class="trending-item-meta">34 votes · New</div>
-        </div>
-      </div>
-
-      <!-- Rage Rooms -->
-      <div class="rage-rooms-card" id="rageRoomsCard">
-        <div class="rage-rooms-header">🚪 Rage Rooms</div>
-        <div class="rage-room-item">
-          <div class="rage-room-icon">🔥</div>
-          <div class="rage-room-info">
-            <div class="rage-room-name">Burnout Buddies</div>
-            <div class="rage-room-members">2.4k members</div>
-          </div>
-        </div>
-        <div class="rage-room-item">
-          <div class="rage-room-icon">☠️</div>
-          <div class="rage-room-info">
-            <div class="rage-room-name">Toxic Boss Survivors</div>
-            <div class="rage-room-members">5.1k members</div>
-          </div>
-        </div>
-        <div class="rage-room-item">
-          <div class="rage-room-icon">🏢</div>
-          <div class="rage-room-info">
-            <div class="rage-room-name">Big 4 Misery Club</div>
-            <div class="rage-room-members">3.8k members</div>
-          </div>
-        </div>
-        <div class="rage-room-item">
-          <div class="rage-room-icon">💔</div>
-          <div class="rage-room-info">
-            <div class="rage-room-name">Tech Layoff Therapy</div>
-            <div class="rage-room-members">7.2k members</div>
-          </div>
-        </div>
-        <div class="rage-room-item">
-          <div class="rage-room-icon">🍺</div>
-          <div class="rage-room-info">
-            <div class="rage-room-name">Friday Night Debrief</div>
-            <div class="rage-room-members">4.6k members</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Drink Counter -->
-      <div class="drink-counter-card" id="drinkCounterCard">
-        <div class="drink-counter-title">🍻 Industry Drink Index</div>
-        <div class="drink-leagues">
-          <div class="drink-league">
-            <span class="drink-league-name">Finance</span>
-            <div class="drink-league-bar"><div class="drink-league-fill finance"></div></div>
-            <span class="drink-league-value">8.5</span>
-          </div>
-          <div class="drink-league">
-            <span class="drink-league-name">Consulting</span>
-            <div class="drink-league-bar"><div class="drink-league-fill consulting"></div></div>
-            <span class="drink-league-value">9.2</span>
-          </div>
-          <div class="drink-league">
-            <span class="drink-league-name">Tech</span>
-            <div class="drink-league-bar"><div class="drink-league-fill tech"></div></div>
-            <span class="drink-league-value">7.1</span>
-          </div>
-          <div class="drink-league">
-            <span class="drink-league-name">Health</span>
-            <div class="drink-league-bar"><div class="drink-league-fill healthcare"></div></div>
-            <span class="drink-league-value">4.3</span>
-          </div>
-        </div>
+        <div class="live-stats-note">Live from the bar. No fake numbers.</div>
       </div>
 
       <!-- Sidebar Footer -->

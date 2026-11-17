@@ -944,111 +944,8 @@ textarea {
   gap: var(--space-md);
 }
 
-/* Trending Gossip */
-.trending-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-}
-
-.trending-header {
-  padding: var(--space-md) var(--space-md) var(--space-sm);
-  font-weight: 700;
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.trending-item {
-  padding: var(--space-sm) var(--space-md);
-  transition: all var(--transition-fast);
-  cursor: pointer;
-  border-left: 3px solid transparent;
-}
-
-.trending-item:hover {
-  background: var(--primary-glow);
-  border-left-color: var(--primary);
-}
-
-.trending-item-title {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 1px;
-}
-
-.trending-item-meta {
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-}
-
-/* Rage Rooms */
-.rage-rooms-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-}
-
-.rage-rooms-header {
-  padding: var(--space-md) var(--space-md) var(--space-sm);
-  font-weight: 700;
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.rage-room-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: 8px var(--space-md);
-  transition: all var(--transition-fast);
-  cursor: pointer;
-}
-
-.rage-room-item:hover {
-  background: var(--primary-glow);
-}
-
-.rage-room-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
-  background: var(--bg-elevated);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-
-.rage-room-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.rage-room-name {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.rage-room-members {
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-}
-
-/* Drink Counter */
-.drink-counter-card {
+/* Live Bar Stats */
+.live-stats-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
@@ -1056,7 +953,7 @@ textarea {
   box-shadow: var(--shadow-sm);
 }
 
-.drink-counter-title {
+.live-stats-header {
   font-weight: 700;
   font-size: var(--font-size-sm);
   color: var(--text-primary);
@@ -1066,64 +963,37 @@ textarea {
   gap: var(--space-xs);
 }
 
-.drink-leagues {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.drink-league {
+.live-stat-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-sm);
-  font-size: var(--font-size-xs);
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border-subtle);
+  font-size: var(--font-size-sm);
 }
 
-.drink-league-name {
-  width: 60px;
+.live-stat-row:last-of-type {
+  border-bottom: none;
+}
+
+.live-stat-label {
   color: var(--text-secondary);
-  font-weight: 500;
 }
 
-.drink-league-bar {
-  flex: 1;
-  height: 7px;
-  background: var(--bg-elevated);
-  border-radius: var(--radius-full);
-  overflow: hidden;
+.live-stat-value {
+  font-weight: 700;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
 }
 
-.drink-league-fill {
-  height: 100%;
-  border-radius: var(--radius-full);
-  transition: width var(--transition-slow);
-}
-
-.drink-league-fill.finance {
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  width: 85%;
-}
-
-.drink-league-fill.tech {
-  background: linear-gradient(90deg, var(--primary), #a855f7);
-  width: 72%;
-}
-
-.drink-league-fill.consulting {
-  background: linear-gradient(90deg, var(--primary), var(--danger));
-  width: 90%;
-}
-
-.drink-league-fill.healthcare {
-  background: linear-gradient(90deg, var(--primary), var(--success));
-  width: 45%;
-}
-
-.drink-league-value {
+.live-stats-note {
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-subtle);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
-  width: 30px;
-  text-align: right;
+  text-align: center;
 }
 
 /* ============================================================

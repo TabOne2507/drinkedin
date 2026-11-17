@@ -263,24 +263,8 @@ const PostComposer = (() => {
         return;
       }
 
-      // If PocketBase is unavailable, create the post locally for demo
-      if (result.data.error && result.data.error.includes('Network')) {
-        const fakePost = {
-          id: 'local-' + Date.now(),
-          ...postData,
-          drinker_name: isAnonymous ? 'Anonymous Drinker' : state.drinkerName,
-          reactions: { cheers: 0, oof: 0, tea: 0, same: 0, therapy: 0, hr_risk: 0 },
-          created: new Date().toISOString(),
-        };
-        Feed.prependPost(fakePost);
-        App.incrementRantCount();
-        App.showToast('Posted! (offline mode — will sync when server wakes up) 🍺', 'success');
-        resetForm();
-        closeModal();
-        return;
-      }
-
-      App.showToast(result.data.error || 'Failed to post. Try screaming instead.', 'error');
+      // Nothing was posted. Keep the modal open so the user can retry.
+      App.showToast(result.data.error || 'Could not post. The server is passed out. Try again.', 'error');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Post 🍺';
       return;

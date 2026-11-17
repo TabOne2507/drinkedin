@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="DrinkedIn admin dashboard.">
+  <meta name="theme-color" content="#0b0f14">
+  <title>Admin — DrinkedIn</title>
+  <link rel="icon" type="image/png" href="/assets/logo-icon.png">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       Login Screen
+       ============================================================ -->
+  <div class="login-screen" id="loginScreen">
+    <form class="login-card" id="loginForm" autocomplete="off">
+      <div class="login-logo">🍺</div>
+      <h1 class="login-title">DrinkedIn <span>Admin</span></h1>
+      <p class="login-subtitle">Restricted area. Credentials are stored server-side.</p>
+
+      <label class="login-field">
+        <span>Username</span>
+        <input type="text" id="loginUsername" name="username" autocomplete="username" required>
+      </label>
+
+      <label class="login-field">
+        <span>Password</span>
+        <input type="password" id="loginPassword" name="password" autocomplete="current-password" required>
+      </label>
+
+      <button type="submit" class="btn btn-primary login-submit" id="loginBtn">Sign In</button>
+      <div class="login-error hidden" id="loginError" role="alert"></div>
+      <div class="login-hint">Set <code>ADMIN_USERNAME</code> and <code>ADMIN_PASSWORD</code> in the Render environment.</div>
+    </form>
+  </div>
+
+  <!-- ============================================================
+       Dashboard
+       ============================================================ -->
+  <div class="admin-shell hidden" id="adminShell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-logo">🍺</span>
+        <span class="brand-name">DrinkedIn</span>
+        <span class="brand-divider">/</span>
+        <span class="brand-section">Admin</span>
+      </div>
+      <div class="topbar-actions">
+        <span class="muted" id="lastRefreshed">—</span>
+        <button type="button" class="btn btn-ghost" id="refreshBtn">Refresh</button>
+        <button type="button" class="btn btn-ghost" id="syncBtn" title="Rebuild user stats from existing posts">Rebuild</button>
+        <button type="button" class="btn btn-danger" id="logoutBtn">Logout</button>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button type="button" class="tab active" data-tab="overview">Overview</button>
+      <button type="button" class="tab" data-tab="users">Users</button>
+      <button type="button" class="tab" data-tab="activity">Activity</button>
+      <button type="button" class="tab" data-tab="posts">Posts</button>
+    </nav>
+
+    <main class="content">
+      <!-- Overview -->
+      <section class="tab-panel active" id="panel-overview">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Drinkers</div>
+            <div class="stat-value" id="statUsers">—</div>
+            <div class="stat-foot">unique people tracked</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Posts</div>
+            <div class="stat-value" id="statPosts">—</div>
+            <div class="stat-foot">rants currently live</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Reactions</div>
+            <div class="stat-value" id="statReactions">—</div>
+            <div class="stat-foot">emotional damage given</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Today</div>
+            <div class="stat-value" id="statActiveToday">—</div>
+            <div class="stat-foot">drinkers seen today</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Posts Today</div>
+            <div class="stat-value" id="statPostsToday">—</div>
+            <div class="stat-foot">fresh chaos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Activity Today</div>
+            <div class="stat-value" id="statActivityToday">—</div>
+            <div class="stat-foot">tracked events</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Category Breakdown</h2>
+              <span class="muted">All live posts</span>
+            </div>
+            <div class="category-list" id="categoryBreakdown">
+              <div class="empty-inline">No posts yet.</div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Top Ranters</h2>
+              <span class="muted">By posts</span>
+            </div>
+            <div class="top-users" id="topUsers">
+              <div class="empty-inline">No users yet.</div>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Latest Activity</h2>
+            <span class="muted" id="lastActivity">—</span>
+          </div>
+          <div class="activity-list compact" id="overviewActivity">
+            <div class="empty-inline">No activity recorded yet.</div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Users -->
+      <section class="tab-panel" id="panel-users">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Users</h2>
+            <div class="panel-tools">
+              <input type="search" class="search-input" id="userSearch" placeholder="Search name, ID, IP...">
+              <span class="muted" id="userCount">0 users</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Drinker</th>
+                  <th>Posts</th>
+                  <th>Reactions</th>
+                  <th>Sessions</th>
+                  <th>Last Seen</th>
+                  <th>Last IP</th>
+                </tr>
+              </thead>
+              <tbody id="usersTable">
+                <tr><td colspan="6" class="empty-cell">No users tracked yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- Activity -->
+      <section class="tab-panel" id="panel-activity">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Activity Log</h2>
+            <div class="panel-tools">
+              <select class="select-input" id="activityFilter">
+                <option value="all">All events</option>
+                <option value="session_started">Sessions</option>
+                <option value="post_created">Posts</option>
+                <option value="reaction_added">Reactions</option>
+                <option value="post_deleted">Deletes</option>
+                <option value="admin_post_deleted">Admin deletes</option>
+                <option value="admin_login">Admin logins</option>
+                <option value="admin_logout">Admin logouts</option>
+              </select>
+              <span class="muted" id="activityCount">0 events</span>
+            </div>
+          </div>
+          <div class="activity-list" id="activityList">
+            <div class="empty-inline">No activity recorded yet.</div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Posts -->
+      <section class="tab-panel" id="panel-posts">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Posts</h2>
+            <span class="muted" id="postCount">0 posts</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Post</th>
+                  <th>Author</th>
+                  <th>Category</th>
+                  <th>Reactions</th>
+                  <th>Created</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="postsTable">
+                <tr><td colspan="6" class="empty-cell">No posts yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <!-- User detail modal -->
+  <div class="modal-overlay hidden" id="userModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="userModalTitle">User</h2>
+        <button type="button" class="icon-btn" id="userModalClose" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body" id="userModalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast" role="status"></div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

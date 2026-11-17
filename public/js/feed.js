@@ -16,100 +16,8 @@ const Feed = (() => {
     water_cooler: { emoji: '💧', label: 'Water Cooler Random', color: '#3b82f6' },
   };
 
-  // Sample posts for when PocketBase is unavailable (demo/fallback)
-  const SAMPLE_POSTS = [
-    {
-      id: 'sample-1',
-      drinker_name: 'BeerLord#42',
-      drinker_id: 'BeerLord#42_143052_11042026',
-      content: 'My manager just used the phrase "let\'s circle back on this" for the 7th time today. SEVENTH. I started a tally. Send help. Or whiskey. Preferably whiskey. 🥃',
-      category: 'office_rage',
-      is_anonymous: false,
-      company_type: '',
-      reactions: { cheers: 24, oof: 47, tea: 3, same: 89, therapy: 12, hr_risk: 5 },
-      created: new Date(Date.now() - 3600000).toISOString(),
-    },
-    {
-      id: 'sample-2',
-      drinker_name: 'Anonymous Drinker',
-      drinker_id: 'anon',
-      content: 'Just came back from a "quick coffee catch-up" that turned into 3 hours at the pub. Called in sick for the afternoon meeting. No regrets. My VP was also at the pub. We made eye contact. Neither of us will speak of this.',
-      category: 'morning_after',
-      is_anonymous: true,
-      company_type: 'Finance Firm',
-      reactions: { cheers: 156, oof: 12, tea: 67, same: 203, therapy: 4, hr_risk: 34 },
-      created: new Date(Date.now() - 7200000).toISOString(),
-    },
-    {
-      id: 'sample-3',
-      drinker_name: 'CoffeAddict!!',
-      drinker_id: 'CoffeAddict!!_090034_11042026',
-      content: 'Started dating someone from the office. We both pretend we don\'t know each other in meetings. Yesterday, she presented MY slides. I had to sit there and clap. This is fine. Everything is fine. 🙃',
-      category: 'personal_overshare',
-      is_anonymous: false,
-      company_type: '',
-      reactions: { cheers: 45, oof: 89, tea: 234, same: 67, therapy: 23, hr_risk: 156 },
-      created: new Date(Date.now() - 14400000).toISOString(),
-    },
-    {
-      id: 'sample-4',
-      drinker_name: 'Anonymous Drinker',
-      drinker_id: 'anon',
-      content: 'CONFIRMED: The Big 4 firm with the worst coffee is [REDACTED] Deloitte. Their break room coffee tastes like someone brewed it in 2019 and just kept reheating it. The partners still drink it like it\'s liquid gold. Stockholm syndrome is real.',
-      category: 'industry_gossip',
-      is_anonymous: true,
-      company_type: 'Consulting Agency',
-      reactions: { cheers: 78, oof: 23, tea: 412, same: 156, therapy: 5, hr_risk: 8 },
-      created: new Date(Date.now() - 28800000).toISOString(),
-    },
-    {
-      id: 'sample-5',
-      drinker_name: 'NightOwl$$99',
-      drinker_id: 'NightOwl$$99_232145_10042026',
-      content: 'Hot take: The office microwave fish person is the bravest soul in corporate America. While you\'re worried about what Karen in accounting thinks of your email tone, that absolute LEGEND is heating up salmon at 12:30pm. Unmatched energy.',
-      category: 'water_cooler',
-      is_anonymous: false,
-      company_type: '',
-      reactions: { cheers: 312, oof: 45, tea: 12, same: 178, therapy: 2, hr_risk: 1 },
-      created: new Date(Date.now() - 43200000).toISOString(),
-    },
-    {
-      id: 'sample-6',
-      drinker_name: 'Anonymous Drinker',
-      drinker_id: 'anon',
-      content: 'Tonight\'s poison: 4 margaritas and a conversation with my Uber driver that was more meaningful than any 1:1 with my manager this quarter. Rating: 🌶️🌶️🌶️ spicy on the hangover scale. Might call in sick. Might also cry in the shower. TBD.',
-      category: 'morning_after',
-      is_anonymous: true,
-      company_type: 'Tech Company',
-      reactions: { cheers: 198, oof: 67, tea: 5, same: 289, therapy: 45, hr_risk: 3 },
-      created: new Date(Date.now() - 54000000).toISOString(),
-    },
-    {
-      id: 'sample-7',
-      drinker_name: 'RebelDev@#77',
-      drinker_id: 'RebelDev@#77_101530_11042026',
-      content: 'My coworker just cc\'d the ENTIRE COMPANY on a reply-all about the broken espresso machine. 847 employees now know that "this is UNACCEPTABLE and reflects a systemic failure in office resource management." King behavior honestly. The CEO replied with a single emoji: 👍',
-      category: 'office_rage',
-      is_anonymous: false,
-      company_type: '',
-      reactions: { cheers: 534, oof: 123, tea: 89, same: 267, therapy: 12, hr_risk: 78 },
-      created: new Date(Date.now() - 72000000).toISOString(),
-    },
-    {
-      id: 'sample-8',
-      drinker_name: 'MadMax!!2026',
-      drinker_id: 'MadMax!!2026_141200_10042026',
-      content: 'My therapist told me to "set boundaries at work." So I moved my desk to the parking lot. Working from my car now. HR called. I told them it\'s a "mobile office initiative." They\'re considering approving a budget for it. The system is broken and I AM THE GLITCH.',
-      category: 'personal_overshare',
-      is_anonymous: false,
-      company_type: '',
-      reactions: { cheers: 890, oof: 34, tea: 23, same: 456, therapy: 234, hr_risk: 67 },
-      created: new Date(Date.now() - 86400000).toISOString(),
-    },
-  ];
-
   /**
-   * Load posts from API (with fallback to sample data)
+   * Load posts from API
    */
   async function loadPosts(category = 'all', page = 1, append = false) {
     const feedContainer = document.getElementById('feedPosts');
@@ -122,18 +30,22 @@ const Feed = (() => {
       feedContainer.innerHTML = renderSkeletons(3);
     }
 
-    // Try API first
     const result = await App.apiRequest(`/api/posts?category=${category}&page=${page}&perPage=20`);
 
-    let posts;
     if (result.error) {
-      // Fallback to sample data
-      posts = filterSamplePosts(category);
-      hasMorePages = false;
-    } else {
-      posts = result.data.items;
-      hasMorePages = page < result.data.totalPages;
+      if (append) {
+        App.showToast(result.data.error || 'Could not load more posts.', 'error');
+        return;
+      }
+      feedContainer.innerHTML = renderErrorState(result.data.error);
+      if (loadMoreBtn) loadMoreBtn.classList.add('hidden');
+      const retryBtn = document.getElementById('retryFeedBtn');
+      if (retryBtn) retryBtn.addEventListener('click', () => loadPosts(category, 1));
+      return;
     }
+
+    const posts = result.data.items;
+    hasMorePages = page < result.data.totalPages;
 
     if (append) {
       currentPosts = [...currentPosts, ...posts];
@@ -163,11 +75,19 @@ const Feed = (() => {
   }
 
   /**
-   * Filter sample posts by category
+   * Render a feed loading error with a retry button
    */
-  function filterSamplePosts(category) {
-    if (category === 'all') return SAMPLE_POSTS;
-    return SAMPLE_POSTS.filter(p => p.category === category);
+  function renderErrorState(message) {
+    return `
+      <div class="empty-state">
+        <div class="empty-state-icon">🚫</div>
+        <div class="empty-state-title">Couldn't load the feed</div>
+        <div class="empty-state-text">
+          ${escapeHtml(message || 'The server is passed out. Try again in a moment.')}
+        </div>
+        <button class="load-more-btn" id="retryFeedBtn" type="button">Try again ↻</button>
+      </div>
+    `;
   }
 
   /**
